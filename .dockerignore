@@ -1,0 +1,6 @@
+# ── Docker build context ──────────────────────────────────────────────────────
+# Exclude files that don't need to be copied into the Docker image
+.git
+.gitignore
+docker-compose.yml
+README.md

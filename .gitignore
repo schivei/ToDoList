@@ -1,0 +1,12 @@
+# OS / editor artefacts
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Docker
+docker-compose.override.yml
+
+# PHP dependency managers (if added later)
+vendor/
+composer.lock
