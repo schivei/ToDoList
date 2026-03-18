@@ -3,14 +3,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/config.php';
 
-// ── CORS / headers ────────────────────────────────────────────────────────────
+// ── Headers ───────────────────────────────────────────────────────────────────
 header('Content-Type: application/json; charset=utf-8');
-
-// Handle pre-flight requests
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit;
-}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -22,7 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 function respond(mixed $data, int $status = 200): never
 {
     http_response_code($status);
-    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+    try {
+        echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+    } catch (\JsonException) {
+        http_response_code(500);
+        echo '{"error":"Erro interno ao serializar resposta."}';
+    }
     exit;
 }
 
@@ -101,7 +100,16 @@ function listTasks(PDO $pdo): never
 function createTask(PDO $pdo): never
 {
     $body  = parseBody();
-    $title = trim($body['title'] ?? '');
+
+    if (!isset($body['title'])) {
+        respondError('O campo "title" é obrigatório.');
+    }
+
+    if (!is_string($body['title'])) {
+        respondError('O campo "title" deve ser uma string.');
+    }
+
+    $title = trim($body['title']);
 
     if ($title === '') {
         respondError('O campo "title" é obrigatório e não pode estar vazio.');
@@ -143,6 +151,9 @@ function updateTask(PDO $pdo, ?int $id): never
     $params = [':id' => $id];
 
     if (array_key_exists('title', $body)) {
+        if (!is_string($body['title'])) {
+            respondError('O campo "title" deve ser uma string.');
+        }
         $title = trim($body['title']);
         if ($title === '') {
             respondError('O campo "title" não pode estar vazio.');
@@ -155,6 +166,9 @@ function updateTask(PDO $pdo, ?int $id): never
     }
 
     if (array_key_exists('completed', $body)) {
+        if (!is_bool($body['completed'])) {
+            respondError('O campo "completed" deve ser um booleano (true ou false).');
+        }
         $sets[]              = 'completed = :completed';
         $params[':completed'] = $body['completed'] ? 1 : 0;
     }
