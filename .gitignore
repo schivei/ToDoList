@@ -10,3 +10,4 @@ docker-compose.override.yml
 # PHP dependency managers (if added later)
 vendor/
 composer.lock
+db_data/

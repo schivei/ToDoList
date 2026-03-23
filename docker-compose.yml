@@ -4,15 +4,27 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     container_name: todolist_app
     ports:
-      - "8080:80"
+      - "8080:8080"
+    command: php -S 0.0.0.0:8080 -t /var/www/html
+    volumes:
+      - ./:/var/www/html
     environment:
       DB_HOST: db
       DB_PORT: "3306"
       DB_NAME: todolist
       DB_USER: todouser
       DB_PASSWORD: todopass
+      XDEBUG_MODE: "${XDEBUG_MODE:-debug,develop}"
+      XDEBUG_START_WITH_REQUEST: "${XDEBUG_START_WITH_REQUEST:-yes}"
+      XDEBUG_CLIENT_HOST: "${XDEBUG_CLIENT_HOST:-host.docker.internal}"
+      XDEBUG_CLIENT_PORT: "${XDEBUG_CLIENT_PORT:-9003}"
+      XDEBUG_IDEKEY: "${XDEBUG_IDEKEY:-VSCODE}"
+      PHP_IDE_CONFIG: "serverName=todolist-app"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       db:
         condition: service_healthy

@@ -42,6 +42,28 @@ Isso irá:
 
 Abra [http://localhost:8080](http://localhost:8080) no navegador.
 
+### 2.1 Debug com Docker Compose (Xdebug + VS Code)
+
+O projeto já está configurado com Xdebug no contêiner `app`.
+
+1. Suba/recrie os serviços com build:
+
+```bash
+docker compose up --build -d
+```
+
+1. No VS Code, inicie a configuração **Listen for Xdebug (Docker)**.
+1. Coloque breakpoints em arquivos PHP (ex.: `api/tasks.php`).
+1. Faça uma requisição para disparar o código (navegador ou `curl`).
+
+Variáveis de debug disponíveis no `docker-compose.yml`:
+
+- `XDEBUG_MODE` (padrão: `debug,develop`)
+- `XDEBUG_START_WITH_REQUEST` (padrão: `yes`)
+- `XDEBUG_CLIENT_HOST` (padrão: `host.docker.internal`)
+- `XDEBUG_CLIENT_PORT` (padrão: `9003`)
+- `XDEBUG_IDEKEY` (padrão: `VSCODE`)
+
 ### 3. Parar os serviços
 
 ```bash
